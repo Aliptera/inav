@@ -1056,7 +1056,7 @@ uint32_t getLoiterRadius(uint32_t loiterRadius) {
 
 float getFlightAxisAngleOverride(uint8_t axis, float angle) {
     if (flightAxisOverride[axis].angleTargetActive) {
-        return flightAxisOverride[axis].angleTarget;
+        return flightAxisOverride[axis].angleTarget + angle;
     } else {
         return angle;
     }
