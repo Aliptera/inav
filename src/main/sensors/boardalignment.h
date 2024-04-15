@@ -30,6 +30,7 @@ PG_DECLARE(boardAlignment_t, boardAlignment);
 
 void initBoardAlignment(void);
 void updateBoardAlignment(int16_t roll, int16_t pitch);
+void overrideBoardPitch(int16_t pitchDeciDegrees);
 void applySensorAlignment(float * dest, float * src, uint8_t rotation);
 void applyBoardAlignment(float *vec);
 void applyTailSitterAlignment(fpVector3_t *vec);

@@ -204,7 +204,7 @@ static const adjustmentConfig_t defaultAdjustmentConfigs[ADJUSTMENT_FUNCTION_COU
         .data = { .stepConfig = { .step = 5 }}
     }, {
         .adjustmentFunction = ADJUSTMENT_PITCH_BOARD_ALIGNMENT,
-        .mode = ADJUSTMENT_MODE_STEP,
+        .mode = ADJUSTMENT_MODE_SELECT,
         .data = { .stepConfig = { .step = 5 }}
     }, {
         .adjustmentFunction = ADJUSTMENT_LEVEL_P,
@@ -620,17 +620,16 @@ static void applyStepAdjustment(controlRateConfig_t *controlRateConfig, uint8_t 
 }
 
 #ifdef USE_INFLIGHT_PROFILE_ADJUSTMENT
-static void applySelectAdjustment(uint8_t adjustmentFunction, uint8_t position)
+static void applySelectAdjustment(uint8_t adjustmentFunction, uint16_t position)
 {
     bool applied = false;
+    int16_t pitchDeciDegrees;
 
     switch (adjustmentFunction) {
-        case ADJUSTMENT_RATE_PROFILE:
-            if (getCurrentControlRateProfile() != position) {
-                changeControlRateProfile(position);
-                blackboxLogInflightAdjustmentEvent(ADJUSTMENT_RATE_PROFILE, position);
-                applied = true;
-            }
+        case ADJUSTMENT_PITCH_BOARD_ALIGNMENT:
+            pitchDeciDegrees = ((uint32_t)position * 900) / (1<<16);
+            overrideBoardPitch(pitchDeciDegrees);
+            blackboxLogInflightAdjustmentEvent(ADJUSTMENT_PITCH_BOARD_ALIGNMENT, boardAlignment()->pitchDeciDegrees);
             break;
     }
 
@@ -691,8 +690,8 @@ void processRcAdjustments(controlRateConfig_t *controlRateConfig, bool canUseRxD
             applyStepAdjustment(controlRateConfig, adjustmentFunction, delta);
 #ifdef USE_INFLIGHT_PROFILE_ADJUSTMENT
         } else if (adjustmentState->config->mode == ADJUSTMENT_MODE_SELECT) {
-            const uint16_t rangeWidth = ((2100 - 900) / adjustmentState->config->data.selectConfig.switchPositions);
-            const uint8_t position = (constrain(rxGetChannelValue(channelIndex), 900, 2100 - 1) - 900) / rangeWidth;
+            const uint16_t rangeWidth = 2100 - 900;
+            const uint16_t position = ((uint32_t)(constrain(rxGetChannelValue(channelIndex), 900, 2100 - 1) - 900)) * (1<<16) / rangeWidth;
 
             applySelectAdjustment(adjustmentFunction, position);
 #endif
