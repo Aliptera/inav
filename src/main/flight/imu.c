@@ -59,6 +59,7 @@
 
 #include "sensors/acceleration.h"
 #include "sensors/barometer.h"
+#include "sensors/boardalignment.h"
 #include "sensors/pitotmeter.h"
 #include "sensors/compass.h"
 #include "sensors/gyro.h"
@@ -727,6 +728,26 @@ void imuUpdateTailSitter(void)
     lastTailSitter = STATE(TAILSITTER);
 }
 
+void imuUpdateAliptera(void)
+{
+    int16_t currentPitchDeciDegrees = boardAlignment()->pitchDeciDegrees;
+    static int16_t lastPitchDeciDegrees = 0;
+
+    int16_t deltaDeciDegrees = currentPitchDeciDegrees - lastPitchDeciDegrees;
+
+    fpAxisAngle_t axisAngle;
+    axisAngle.axis.x = 0;
+    axisAngle.axis.y = 1; // pitch is about the y axis
+    axisAngle.axis.z = 0;
+    axisAngle.angle = DECIDEGREES_TO_RADIANS(deltaDeciDegrees);
+    fpQuaternion_t incremental_rotation;
+    axisAngleToQuaternion(&incremental_rotation, &axisAngle);
+
+    quaternionMultiply(&orientation, &orientation, &incremental_rotation);
+
+    lastPitchDeciDegrees = currentPitchDeciDegrees;
+}
+
 static void imuCalculateEstimatedAttitude(float dT)
 {
 #if defined(USE_MAG)
@@ -824,6 +845,7 @@ static void imuCalculateEstimatedAttitude(float dT)
                             accWeight,
                             magWeight);
     imuUpdateTailSitter();
+    imuUpdateAliptera();
     imuUpdateEulerAngles();
 }
 
