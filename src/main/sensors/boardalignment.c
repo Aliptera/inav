@@ -88,7 +88,7 @@ void updateBoardAlignment(int16_t roll, int16_t pitch)
 }
 
 void overrideBoardPitch(int16_t pitchDeciDegrees) {
-    boardAlignmentMutable()->pitchDeciDegrees = constrain(-pitchDeciDegrees, SETTING_ALIGN_BOARD_PITCH_MIN, SETTING_ALIGN_BOARD_PITCH_MAX);
+    boardAlignmentMutable()->pitchDeciDegrees = constrain(pitchDeciDegrees, SETTING_ALIGN_BOARD_PITCH_MIN, SETTING_ALIGN_BOARD_PITCH_MAX);
     initBoardAlignment();
 }
 
