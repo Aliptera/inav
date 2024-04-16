@@ -628,6 +628,8 @@ static void applySelectAdjustment(uint8_t adjustmentFunction, uint16_t position)
     switch (adjustmentFunction) {
         case ADJUSTMENT_PITCH_BOARD_ALIGNMENT:
             pitchDeciDegrees = ((uint32_t)position * 900) / (1<<16);
+            if (pitchDeciDegrees > 450)
+                pitchDeciDegrees = 900 - pitchDeciDegrees;
             overrideBoardPitch(pitchDeciDegrees);
             blackboxLogInflightAdjustmentEvent(ADJUSTMENT_PITCH_BOARD_ALIGNMENT, boardAlignment()->pitchDeciDegrees);
             break;
