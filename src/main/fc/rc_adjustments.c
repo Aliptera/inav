@@ -45,6 +45,7 @@
 #include "navigation/navigation_private.h"
 
 #include "flight/mixer.h"
+#include "flight/mixer_profile.h"
 #include "flight/pid.h"
 
 #include "io/beeper.h"
@@ -628,7 +629,7 @@ static void applySelectAdjustment(uint8_t adjustmentFunction, uint16_t position)
     switch (adjustmentFunction) {
         case ADJUSTMENT_PITCH_BOARD_ALIGNMENT:
             pitchDeciDegrees = ((uint32_t)position * 900) / (1<<16);
-            if (pitchDeciDegrees > 450)
+            if (currentMixerProfileIndex + 1 == 2) // Horizontal Flight Mode
                 pitchDeciDegrees = pitchDeciDegrees - 900;
             overrideBoardPitch(pitchDeciDegrees);
             blackboxLogInflightAdjustmentEvent(ADJUSTMENT_PITCH_BOARD_ALIGNMENT, boardAlignment()->pitchDeciDegrees);
